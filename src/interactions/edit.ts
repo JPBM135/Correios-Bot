@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType } from 'discord.js';
+import { ApplicationCommandOptionType, ChannelType } from 'discord.js';
 
 export const EditCommand = {
 	name: 'editar',
@@ -9,7 +9,6 @@ export const EditCommand = {
 			description: 'O código de rastreio.',
 			type: ApplicationCommandOptionType.String,
 			required: true,
-			autocomplete: true,
 		},
 		{
 			name: 'novo_nome',
@@ -21,5 +20,11 @@ export const EditCommand = {
 			description: 'Se o código de rastreio é restrito para apenas você. (Padrão: falso)',
 			type: ApplicationCommandOptionType.Boolean,
 		},
+		{
+			name: 'canal_de_notificacao',
+			description: 'O canal de notificação do código de rastreio.',
+			type: ApplicationCommandOptionType.Channel,
+			channel_types: [ChannelType.GuildText, ChannelType.GuildAnnouncement, ChannelType.PublicThread],
+		},
 	],
-};
+} as const;
