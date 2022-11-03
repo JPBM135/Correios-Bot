@@ -19,7 +19,7 @@ export async function deleteUser(id: string): Promise<number> {
 	const results = await sql<[{ id: string }]>`
 		delete from user_config
 		where user_id = ${id}
-		returning id
+		returning user_id
 	`;
 
 	if (!results.length) {
