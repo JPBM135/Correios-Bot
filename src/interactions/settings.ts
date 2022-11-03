@@ -6,7 +6,7 @@ export const SettingsCommand = {
 	options: [
 		{
 			name: 'permitir_dm',
-			description: 'Permite que o bot envie mensagens diretamente para você. (Padrão: falso)',
+			description: 'Permite que o bot envie mensagens diretamente para você. (Padrão: true)',
 			type: ApplicationCommandOptionType.Subcommand,
 		},
 		{

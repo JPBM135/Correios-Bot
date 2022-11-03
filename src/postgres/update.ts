@@ -2,13 +2,14 @@ import { container, kSQL, removeUndefinedKeys } from '@yuudachi/framework';
 import type { Sql } from 'postgres';
 import type { RawCorreiosCode, RawUser } from './get.js';
 
-type PatchUser = Partial<Pick<RawUser, 'allow_dm'>>;
+type PatchUser = Partial<Pick<RawUser, 'allow_dm' | 'always_restrict'>>;
 
 export async function updateUser(id: string, patch: PatchUser) {
 	const sql = container.resolve<Sql<any>>(kSQL);
 
 	const updates: Partial<Record<keyof RawUser, unknown>> = {
 		allow_dm: patch.allow_dm,
+		always_restrict: patch.always_restrict,
 	};
 
 	const queries = removeUndefinedKeys(updates);
