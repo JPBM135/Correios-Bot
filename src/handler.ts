@@ -3,10 +3,13 @@ import type { Interaction } from 'discord.js';
 import { codeBlock } from 'discord.js';
 import { handleRefresh } from './buttons/refresh.js';
 import { handleCreate } from './commands/create.js';
+import { handleDelete } from './commands/delete.js';
 import { handleLookup } from './commands/lookup.js';
+import { handleSettings } from './commands/settings.js';
+import { handleUpdate } from './commands/update.js';
 import { Emojis } from './constants.js';
 
-type CommandNames = 'configurar' | 'criar' | 'editar' | 'rastrear';
+type CommandNames = 'configurar' | 'criar' | 'delete' | 'editar' | 'rastrear';
 
 export async function handleInteractionCommand(interaction: Interaction) {
 	if (!interaction.isChatInputCommand()) return;
@@ -28,8 +31,17 @@ export async function handleInteractionCommand(interaction: Interaction) {
 			case 'rastrear':
 				await handleLookup(interaction, args);
 				break;
+			case 'delete':
+				await handleDelete(interaction, args);
+				break;
+			case 'configurar':
+				await handleSettings(interaction, args);
+				break;
+			case 'editar':
+				await handleUpdate(interaction, args);
+				break;
 			default:
-				await interaction.reply({ content: 'Comando não implementado.', ephemeral: true });
+				await interaction.reply({ content: `${Emojis.error} | Comando não implementado.`, ephemeral: true });
 				break;
 		}
 	} catch (error) {
@@ -53,6 +65,10 @@ export async function handleInteractionButton(interaction: Interaction) {
 	if (!interaction.isButton()) return;
 
 	const [command] = interaction.customId.split('::');
+
+	if (command === 'CUSTOM') {
+		return;
+	}
 
 	logger.info({
 		msg: 'Received interaction (Button)',
