@@ -4,7 +4,7 @@ import type { APIButtonComponentWithCustomId, APIEmbed, ChatInputCommandInteract
 import { ButtonStyle, ComponentType } from 'discord.js';
 import { Emojis } from '../constants.js';
 import type { DeleteCommand } from '../interactions/delete.js';
-import { deleteCode, deleteUser } from '../postgres/detete.js';
+import { deleteCode, deleteUser } from '../postgres/delete.js';
 import { getCode } from '../postgres/get.js';
 import { generateCustomId } from '../utils/genCustomId.js';
 import { typeSafeParseEmoji } from '../utils/parseEmoji.js';
