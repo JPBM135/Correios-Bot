@@ -13,6 +13,7 @@
 		"start": "env-cmd node --enable-source-maps dist/index.js",
 		"start:dev": "yarn build && yarn dev",
 		"dev": "env-cmd node --enable-source-maps dist/index.js",
+		"deploy:commands": "env-cmd node --enable-source-maps dist/deploy.js",
 		"update": "yarn upgrade-interactive"
 	},
 	"type": "module",
@@ -21,6 +22,15 @@
 	"license": "AGPL-3.0",
 	"private": true,
 	"dependencies": {
+		"@discordjs/rest": "^1.3.0",
+		"@yuudachi/framework": "^0.1.3",
+		"discord-api-types": "^0.37.16",
+		"discord.js": "^14.6.0",
+		"postgres": "^3.3.1",
+		"postgresql": "^0.0.1",
+		"reflect-metadata": "^0.1.13",
+		"tsyringe": "^4.7.0",
+		"undici": "^5.12.0",
 		"yarn": "^1.22.19"
 	},
 	"devDependencies": {
