@@ -23,8 +23,8 @@ export async function deleteUser(id: string): Promise<number> {
 		const sql = container.resolve<Sql>(kSQL);
 
 		const results = await sql<[{ id: string }]>`
-			delete from users
-			where id = ${id}
+			delete from user_config
+			where user_id = ${id}
 			returning id
 		`;
 
