@@ -32,11 +32,10 @@ export async function handleRefresh(interaction: ButtonInteraction) {
 			ephemeral: true,
 		});
 
-		await interaction.editReply({
+		return interaction.editReply({
 			embeds: interaction.message.embeds,
 		});
-		return;
 	}
 
-	await interaction.editReply({ embeds: [formatCorreios({ ...data, name: codeData?.name })] });
+	return interaction.editReply({ embeds: [formatCorreios({ ...data, name: codeData?.name })] });
 }
