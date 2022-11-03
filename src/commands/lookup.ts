@@ -1,12 +1,13 @@
 import { createMessageActionRow } from '@yuudachi/framework';
 import type { ArgumentsOf } from '@yuudachi/framework/types';
 import type { APIButtonComponentWithCustomId, ChatInputCommandInteraction } from 'discord.js';
-import { ComponentType, ButtonStyle, parseEmoji } from 'discord.js';
+import { ComponentType, ButtonStyle } from 'discord.js';
 import { Emojis } from '../constants.js';
 import { fetchCorreios } from '../correios/fetch.js';
 import type { LookupCommand } from '../interactions/lookup.js';
 import { getCode } from '../postgres/get.js';
 import { formatCorreios } from '../utils/correioFormat.js';
+import { typeSafeParseEmoji } from '../utils/parseEmoji.js';
 import { validateCode } from '../utils/validadeCode.js';
 
 export async function handleLookup(interaction: ChatInputCommandInteraction, args: ArgumentsOf<typeof LookupCommand>) {
@@ -43,8 +44,7 @@ export async function handleLookup(interaction: ChatInputCommandInteraction, arg
 		type: ComponentType.Button,
 		custom_id: `REFRESH::${code}`,
 		style: ButtonStyle.Secondary,
-		// @ts-expect-error: this is a valid emoji
-		emoji: parseEmoji(Emojis.refresh),
+		emoji: typeSafeParseEmoji(Emojis.refresh),
 	};
 
 	return interaction.editReply({
