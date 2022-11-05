@@ -48,7 +48,7 @@ export async function checkJob() {
 
 			if (ownerConfig.allow_dm) await owner.send({ embeds }).catch(() => null);
 
-			if (code.channel_id) {
+			if (code.channel_id && !code.restricted) {
 				const channel = await client.channels.fetch(code.channel_id);
 
 				if (channel?.isTextBased()) {
