@@ -78,19 +78,12 @@ function formatEvent(event: Event, index: number, update = false): string {
 
 type FormatInput = RastreioCorreios & { name?: string | null };
 
-export function formatCorreios(data: FormatInput, update = false): APIEmbed {
+export function formatCorreios(data: FormatInput, update = false): APIEmbed[] {
 	const name = data.name ?? 'Sem nome';
 	const { tracking_code, status, events } = data.data;
 
 	const embed: APIEmbed = {
 		title: `📦 | Rastreio de \`${tracking_code}\` - ${name}`,
-		description:
-			'\n' + events.map((evt, idx) => formatEvent(evt, idx, update && idx === events.length - 1)).join('\n\n'),
-
-		footer: {
-			text: `Status: ${status} | Atualizado em:`,
-		},
-		timestamp: new Date().toISOString(),
 	};
 
 	if (status === 'delivered') {
@@ -99,5 +92,32 @@ export function formatCorreios(data: FormatInput, update = false): APIEmbed {
 		embed.color = 0x36393f;
 	}
 
-	return truncateEmbed(embed);
+	const formattedEvents = events.map((evt, idx) => formatEvent(evt, idx, update && idx === events.length - 1));
+
+	const eventEmbeds: APIEmbed[] = [];
+	const tempContent = [];
+
+	for (const event of formattedEvents) {
+		if (tempContent.join('\n\n').length + event.length > 4_096) {
+			eventEmbeds.push({ description: tempContent.join('\n\n') });
+			tempContent.length = 0;
+		}
+
+		tempContent.push(event);
+	}
+
+	if (tempContent.length >= 1) {
+		eventEmbeds.push({ description: tempContent.join('\n\n') });
+	}
+
+	eventEmbeds[0]!.title = embed.title;
+	eventEmbeds[eventEmbeds.length - 1] = {
+		...eventEmbeds.at(-1),
+		footer: {
+			text: `Status: ${status} | Atualizado em:`,
+		},
+		timestamp: new Date().toISOString(),
+	};
+
+	return eventEmbeds.map((evt) => truncateEmbed(evt));
 }

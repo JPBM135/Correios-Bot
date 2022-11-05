@@ -42,7 +42,7 @@ export async function handleCreate(interaction: ChatInputCommandInteraction, arg
 	if (codeData.data.status === 'delivered') {
 		return interaction.editReply({
 			content: `${Emojis.success} | O código já foi entregue.`,
-			embeds: [formatCorreios(codeData)],
+			embeds: formatCorreios(codeData),
 		});
 	}
 

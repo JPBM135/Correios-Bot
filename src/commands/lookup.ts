@@ -48,7 +48,7 @@ export async function handleLookup(interaction: ChatInputCommandInteraction, arg
 	};
 
 	return interaction.editReply({
-		embeds: [formatCorreios({ ...correios, name: codeConfig?.name })],
+		embeds: formatCorreios({ ...correios, name: codeConfig?.name }),
 		components: [createMessageActionRow([refreshButton])],
 	});
 }

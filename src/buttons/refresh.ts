@@ -37,5 +37,5 @@ export async function handleRefresh(interaction: ButtonInteraction) {
 		});
 	}
 
-	return interaction.editReply({ embeds: [formatCorreios({ ...data, name: codeData?.name })] });
+	return interaction.editReply({ embeds: formatCorreios({ ...data, name: codeData?.name }) });
 }

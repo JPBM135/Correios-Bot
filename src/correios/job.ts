@@ -44,15 +44,15 @@ export async function checkJob() {
 
 			const ownerConfig = await getUser(code.owner_id);
 
-			const embed = formatCorreios(data, true);
+			const embeds = formatCorreios(data, true);
 
-			if (ownerConfig.allow_dm) await owner.send({ embeds: [embed] }).catch(() => null);
+			if (ownerConfig.allow_dm) await owner.send({ embeds }).catch(() => null);
 
 			if (code.channel_id) {
 				const channel = await client.channels.fetch(code.channel_id);
 
 				if (channel?.isTextBased()) {
-					await channel.send({ embeds: [embed] }).catch(() => null);
+					await channel.send({ embeds }).catch(() => null);
 				}
 			}
 
