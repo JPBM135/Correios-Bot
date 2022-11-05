@@ -15,8 +15,8 @@ export async function updateUser(id: string, patch: PatchUser) {
 	const queries = removeUndefinedKeys(updates);
 
 	const [result] = await sql<[RawUser]>`
-		update users set ${sql(queries as Record<string, unknown>, ...Object.keys(queries))}
-		where id = ${id}
+		update user_config set ${sql(queries as Record<string, unknown>, ...Object.keys(queries))}
+		where user_id = ${id}
 		returning *
 	`;
 
