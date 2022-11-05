@@ -9,7 +9,7 @@ import { handleSettings } from './commands/settings.js';
 import { handleUpdate } from './commands/update.js';
 import { Emojis } from './constants.js';
 
-type CommandNames = 'configurar' | 'criar' | 'delete' | 'editar' | 'rastrear';
+type CommandNames = 'configurar' | 'delete' | 'editar' | 'rastrear' | 'registrar';
 
 export async function handleInteractionCommand(interaction: Interaction) {
 	if (!interaction.isChatInputCommand()) return;
@@ -25,7 +25,7 @@ export async function handleInteractionCommand(interaction: Interaction) {
 
 	try {
 		switch (command) {
-			case 'criar':
+			case 'registrar':
 				await handleCreate(interaction, args);
 				break;
 			case 'rastrear':

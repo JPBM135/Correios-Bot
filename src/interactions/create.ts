@@ -1,8 +1,8 @@
 import { ApplicationCommandOptionType } from 'discord.js';
 
-export const CreateCommand = {
-	name: 'criar',
-	description: 'Inicia o rastremento de um código de rastreio.',
+export const RegisterCommand = {
+	name: 'registrar',
+	description: 'Inicia o rastremento de um código dos correios.',
 	options: [
 		{
 			name: 'codigo',

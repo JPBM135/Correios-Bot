@@ -2,13 +2,16 @@ import type { ArgumentsOf } from '@yuudachi/framework/types';
 import type { ChatInputCommandInteraction } from 'discord.js';
 import { Emojis } from '../constants.js';
 import { fetchCorreios } from '../correios/fetch.js';
-import type { CreateCommand } from '../interactions/create.js';
+import type { RegisterCommand } from '../interactions/create.js';
 import { createCode } from '../postgres/create.js';
 import { getCode, getUser } from '../postgres/get.js';
 import { formatCorreios } from '../utils/correioFormat.js';
 import { validateCode } from '../utils/validadeCode.js';
 
-export async function handleCreate(interaction: ChatInputCommandInteraction, args: ArgumentsOf<typeof CreateCommand>) {
+export async function handleCreate(
+	interaction: ChatInputCommandInteraction,
+	args: ArgumentsOf<typeof RegisterCommand>,
+) {
 	await interaction.deferReply({
 		ephemeral: true,
 	});
@@ -32,6 +35,10 @@ export async function handleCreate(interaction: ChatInputCommandInteraction, arg
 	const code = await getCode(codigo);
 	if (code) {
 		return interaction.editReply(`${Emojis.error} | Código já cadastrado.`);
+	}
+
+	if (!userConfig.allow_dm && restricted) {
+		return interaction.editReply(`${Emojis.error} | Você não pode cadastrar um código restrito se não permitir DMs.`);
 	}
 
 	const codeData = await fetchCorreios(codigo);
