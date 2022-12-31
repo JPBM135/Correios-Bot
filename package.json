@@ -14,7 +14,7 @@
 		"start:dev": "yarn build && yarn dev",
 		"dev": "env-cmd node --enable-source-maps dist/index.js",
 		"deploy:commands": "env-cmd node --enable-source-maps dist/deploy.js",
-		"server:update": "git pull && yarn --immutable && yarn build && yarn deploy:commands",
+		"server:update": "git pull && yarn --immutable && yarn build && yarn deploy:commands && pm2 restart",
 		"update": "yarn upgrade-interactive"
 	},
 	"type": "module",
