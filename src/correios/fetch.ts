@@ -44,7 +44,7 @@ export async function fetchCorreios(code: string): Promise<RastreioCorreios<bool
 
 	const body = await response.body.json();
 
-	if (!validateResponse(response)) {
+	if (!validateResponse(response) || !body.success) {
 		return {
 			...body,
 			statusCode: body.message.includes('não encontrado') ? 404 : response.statusCode,
