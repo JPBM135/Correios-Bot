@@ -4,6 +4,7 @@ import type { Sql } from 'postgres';
 import { getUser, type RawCorreiosCode } from '../postgres/get.js';
 import { updateCode } from '../postgres/update.js';
 import { formatCorreios } from '../utils/correioFormat.js';
+import type { RastreioCorreios } from './fetch.js';
 import { fetchCorreios } from './fetch.js';
 
 export async function checkJob() {
@@ -19,7 +20,18 @@ export async function checkJob() {
 
 	for (const code of openCodes) {
 		try {
-			const data = await fetchCorreios(code.code);
+			const data = (await fetchCorreios(code.code)) as RastreioCorreios<true>;
+
+			if (!data.success) {
+				logger.error({
+					msg: 'Error while fetching code',
+					code: code.code,
+					statusCode: data.statusCode,
+					message: data.message,
+				});
+
+				continue;
+			}
 
 			if (!data || data.data.events.length === code.events_size) {
 				if (data.data.status === 'delivered') {

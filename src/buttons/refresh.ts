@@ -1,5 +1,6 @@
 import type { ButtonInteraction } from 'discord.js';
 import { Emojis } from '../constants.js';
+import type { RastreioCorreios } from '../correios/fetch.js';
 import { fetchCorreios } from '../correios/fetch.js';
 import { getCode } from '../postgres/get.js';
 import { formatCorreios } from '../utils/correioFormat.js';
@@ -9,13 +10,20 @@ export async function handleRefresh(interaction: ButtonInteraction) {
 
 	await interaction.deferUpdate();
 
-	const data = await fetchCorreios(code);
+	const correios = await fetchCorreios(code);
 
-	if (!data) {
-		await interaction.followUp({
-			content: `${Emojis.error} | Código não encontrado, tente novamente mais tarde.`,
-			ephemeral: true,
-		});
+	if (!correios.success) {
+		if (correios.statusCode === 404) {
+			return interaction.followUp({
+				content: `${Emojis.error} | Código não encontrado, tente novamente mais tarde.`,
+				ephemeral: true,
+			});
+		} else if (correios.statusCode !== 200) {
+			return interaction.followUp({
+				content: `${Emojis.error} | Houve um erro ao buscar o código: \`${correios.statusCode}\` - \`${correios.message}\``,
+				ephemeral: true,
+			});
+		}
 
 		await interaction.editReply({
 			components: [],
@@ -37,5 +45,7 @@ export async function handleRefresh(interaction: ButtonInteraction) {
 		});
 	}
 
-	return interaction.editReply({ embeds: formatCorreios({ ...data, name: codeData?.name }) });
+	return interaction.editReply({
+		embeds: formatCorreios({ ...(correios as RastreioCorreios<true>), name: codeData?.name }),
+	});
 }

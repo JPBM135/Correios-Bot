@@ -1,6 +1,7 @@
 import type { ArgumentsOf } from '@yuudachi/framework/types';
 import type { ChatInputCommandInteraction } from 'discord.js';
 import { Emojis } from '../constants.js';
+import type { RastreioCorreios } from '../correios/fetch.js';
 import { fetchCorreios } from '../correios/fetch.js';
 import type { RegisterCommand } from '../interactions/create.js';
 import { createCode } from '../postgres/create.js';
@@ -41,15 +42,22 @@ export async function handleCreate(
 		return interaction.editReply(`${Emojis.error} | Você não pode cadastrar um código restrito se não permitir DMs.`);
 	}
 
-	const codeData = await fetchCorreios(codigo);
-	if (!codeData) {
+	const correios = await fetchCorreios(codigo);
+
+	if (correios.statusCode === 404) {
 		return interaction.editReply(`${Emojis.error} | Código não encontrado, tente novamente mais tarde.`);
 	}
 
-	if (codeData.data.status === 'delivered') {
+	if (!correios.success) {
+		return interaction.editReply(
+			`${Emojis.error} | Houve um erro ao buscar o código: \`${correios.statusCode}\` - \`${correios.message}\``,
+		);
+	}
+
+	if ((correios as RastreioCorreios<true>).data.status === 'delivered') {
 		return interaction.editReply({
 			content: `${Emojis.success} | O código já foi entregue.`,
-			embeds: formatCorreios(codeData),
+			embeds: formatCorreios(correios as RastreioCorreios<true>),
 		});
 	}
 

@@ -3,6 +3,7 @@ import type { ArgumentsOf } from '@yuudachi/framework/types';
 import type { APIButtonComponentWithCustomId, ChatInputCommandInteraction } from 'discord.js';
 import { ComponentType, ButtonStyle } from 'discord.js';
 import { Emojis } from '../constants.js';
+import type { RastreioCorreios } from '../correios/fetch.js';
 import { fetchCorreios } from '../correios/fetch.js';
 import type { LookupCommand } from '../interactions/lookup.js';
 import { getCode } from '../postgres/get.js';
@@ -35,8 +36,14 @@ export async function handleLookup(interaction: ChatInputCommandInteraction, arg
 
 	const correios = await fetchCorreios(code);
 
-	if (!correios) {
+	if (correios.statusCode === 404) {
 		return interaction.editReply(`${Emojis.error} | Código não encontrado, tente novamente mais tarde.`);
+	}
+
+	if (!correios.success) {
+		return interaction.editReply(
+			`${Emojis.error} | Houve um erro ao buscar o código: \`${correios.statusCode}\` - \`${correios.message}\``,
+		);
 	}
 
 	const refreshButton: APIButtonComponentWithCustomId = {
@@ -48,7 +55,7 @@ export async function handleLookup(interaction: ChatInputCommandInteraction, arg
 	};
 
 	return interaction.editReply({
-		embeds: formatCorreios({ ...correios, name: codeConfig?.name }),
+		embeds: formatCorreios({ ...(correios as RastreioCorreios<true>), name: codeConfig?.name }),
 		components: [createMessageActionRow([refreshButton])],
 	});
 }

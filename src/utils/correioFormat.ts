@@ -76,7 +76,7 @@ function formatEvent(event: Event, index: number, update = false): string {
 	return data.join('\n');
 }
 
-type FormatInput = RastreioCorreios & { name?: string | null };
+type FormatInput = RastreioCorreios<true> & { name?: string | null };
 
 export function formatCorreios(data: FormatInput, update = false): APIEmbed[] {
 	const name = data.name ?? 'Sem nome';

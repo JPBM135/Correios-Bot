@@ -32,17 +32,27 @@ export interface Data {
 	tracking_code: string;
 }
 
-export interface RastreioCorreios {
-	data: Data;
-	success: boolean;
+export interface RastreioCorreios<T extends boolean> {
+	data: T extends true ? Data : undefined;
+	message: T extends false ? string : undefined;
+	statusCode: number;
+	success: T;
 }
 
-export async function fetchCorreios(code: string): Promise<RastreioCorreios> {
+export async function fetchCorreios(code: string): Promise<RastreioCorreios<boolean>> {
 	const response = await request(`${BaseUrl}/${code}`);
 
+	const body = await response.body.json();
+
 	if (!validateResponse(response)) {
-		throw new Error(`Error while fetching ${code}: ${response.statusCode}`);
+		return {
+			...body,
+			statusCode: response.statusCode,
+		} as RastreioCorreios<false>;
 	}
 
-	return (await response.body.json()) as RastreioCorreios;
+	return {
+		...body,
+		statusCode: response.statusCode,
+	} as RastreioCorreios<true>;
 }
