@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  postgres:
+    build: ./docker/postgresql
+    labels:
+      com.correiosbot.description: 'PostgreSQL'
+    expose:
+      - '5432'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U correiosbot']
+      interval: 10s
+      timeout: 5s
+    environment:
+      POSTGRES_USER: 'correiosbot'
+      POSTGRES_PASSWORD: 'admin'
+      POSTGRES_DB: 'correiosbot'
+    volumes:
+      - correios-postgres-data:/var/lib/postgresql/data
+    ports:
+      - '127.0.0.1:3232:5432'
+
+volumes:
+  correios-postgres-data:
+    name: 'correios-postgres-data'
