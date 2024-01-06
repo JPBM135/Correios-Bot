@@ -8,8 +8,9 @@ import { handleLookup } from './commands/lookup.js';
 import { handleSettings } from './commands/settings.js';
 import { handleUpdate } from './commands/update.js';
 import { Emojis } from './constants.js';
+import { handleList } from './commands/list.js';
 
-type CommandNames = 'configurar' | 'delete' | 'editar' | 'rastrear' | 'registrar';
+type CommandNames = 'configurar' | 'delete' | 'editar' | 'rastrear' | 'registrar' | 'listar';
 
 export async function handleInteractionCommand(interaction: Interaction) {
 	if (!interaction.isChatInputCommand()) return;
@@ -39,6 +40,9 @@ export async function handleInteractionCommand(interaction: Interaction) {
 				break;
 			case 'editar':
 				await handleUpdate(interaction, args);
+				break;
+			case 'listar':
+				await handleList(interaction, args);
 				break;
 			default:
 				await interaction.reply({ content: `${Emojis.error} | Comando não implementado.`, ephemeral: true });
@@ -80,6 +84,11 @@ export async function handleInteractionButton(interaction: Interaction) {
 		switch (command) {
 			case 'REFRESH':
 				await handleRefresh(interaction);
+				break;
+			case 'PAGINATION':
+				if (new Date().getTime() - interaction.message.createdTimestamp > 60000) {
+					await interaction.update({ components: [] });
+				}
 				break;
 			default:
 				await interaction.reply({ content: 'Botão não implementado.', ephemeral: true });

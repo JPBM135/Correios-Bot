@@ -1,58 +1,57 @@
+import process from 'node:process';
+import { URLSearchParams } from 'node:url';
 import { request } from 'undici';
 import { BaseUrl } from '../constants.js';
-import { validateResponse } from '../utils/validadeResponse.js';
+import { validateResponseStatusCode } from '../utils/validadeResponse.js';
 
-export interface Company {
-	created_at: Date;
-	id: number;
-	is_active: number;
-	jobs_frequency: string;
-	name: string;
-	sk_company: string;
-	updated_at?: string;
-}
-
-export interface Event {
-	city: string;
-	comment?: string;
-	date: string;
-	destination_city: string;
-	destination_local: string;
-	destination_uf: string;
-	events: string;
-	local: string;
-	tag: string;
-	uf: string;
-}
-
-export interface Data {
-	company: Company;
-	events: Event[];
-	status: string;
-	tracking_code: string;
+export interface Evento {
+	data?: string;
+	hora?: string;
+	local?: string;
+	status?: string;
+	subStatus?: string[];
 }
 
 export interface RastreioCorreios<T extends boolean> {
-	data: T extends true ? Data : undefined;
-	message: T extends false ? string : undefined;
+	codigo?: string;
+	eventos?: T extends true ? Evento[] : [];
+	host?: string;
+	quantidade?: T extends true ? number : 0;
+	servico?: string;
 	statusCode: number;
-	success: T;
+	success: boolean;
 }
 
 export async function fetchCorreios(code: string): Promise<RastreioCorreios<boolean>> {
-	const response = await request(`${BaseUrl}/${code}`);
+	const urlQuery = new URLSearchParams();
+	urlQuery.append('codigo', code);
+	urlQuery.append('user', process.env.LINETRACK_USER!);
+	urlQuery.append('token', process.env.LINETRACK_TOKEN!);
 
-	const body = await response.body.json();
+	const response = await request(`${BaseUrl}?${urlQuery.toString()}`, {
+		method: 'GET',
+	});
 
-	if (!validateResponse(response) || !body.success) {
+	if (response.statusCode !== 200) {
+		return {
+			success: false,
+			statusCode: response.statusCode,
+		} as RastreioCorreios<false>;
+	}
+
+	const body = (await response.body.json()) as RastreioCorreios<boolean>;
+
+	if (!validateResponseStatusCode(response)) {
 		return {
 			...body,
-			statusCode: body.message.includes('não encontrado') ? 404 : response.statusCode,
+			success: response.statusCode > 499,
+			statusCode: body.eventos?.length && body.host ? response.statusCode : 404,
 		} as RastreioCorreios<false>;
 	}
 
 	return {
 		...body,
+		success: true,
 		statusCode: response.statusCode,
 	} as RastreioCorreios<true>;
 }

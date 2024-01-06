@@ -20,19 +20,35 @@ export async function handleSettings(
 				allow_dm: !userConfig.allow_dm,
 			});
 
+			const allowDmDescription = userConfig.allow_dm
+				? 'A partir de agora você receberá DMs sobre as atualizações de seus códigos.'
+				: 'A partir de agora você não receberá mais DMs sobre as atualizações de seus códigos.';
+
 			return interaction.editReply({
-				content: `${Emojis.success} | Mensagens diretas ${userConfig.allow_dm ? 'des' : ''}ativadas.`,
+				content: [
+					`${Emojis.success} | Mensagens diretas ${userConfig.allow_dm ? 'des' : ''}ativadas.`,
+					allowDmDescription,
+				].join('\n'),
 			});
 		case 'sempre_restrito':
 			await updateUser(interaction.user.id, {
 				always_restrict: !userConfig.always_restrict,
 			});
 
+			const alwaysRestrictDescription = userConfig.always_restrict
+				? 'A partir de agora todos os códigos que você cadastrar serão restritos por padrão.'
+				: 'A partir de agora todos os códigos que você cadastrar não serão mais restritos por padrão.';
+
 			return interaction.editReply({
-				content: `${Emojis.success} | Modo restrito ${userConfig.always_restrict ? 'des' : ''}ativado.`,
+				content: [
+					`${Emojis.success} | Modo restrito ${userConfig.always_restrict ? 'des' : ''}ativado.`,
+					alwaysRestrictDescription,
+				].join('\n'),
 			});
 		default:
 			logger.warn('Invalid subcommand');
-			return undefined;
+			return interaction.editReply({
+				content: `${Emojis.error} | Configuração inválida.`,
+			});
 	}
 }

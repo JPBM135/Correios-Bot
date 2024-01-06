@@ -3,7 +3,7 @@ import { Emojis } from '../constants.js';
 import type { RastreioCorreios } from '../correios/fetch.js';
 import { fetchCorreios } from '../correios/fetch.js';
 import { getCode } from '../postgres/get.js';
-import { formatCorreios } from '../utils/correioFormat.js';
+import { generateCorreiosMessage } from '../utils/formatCorreios/generateMessage.js';
 
 export async function handleRefresh(interaction: ButtonInteraction) {
 	const code = interaction.customId.split('::')[1]!;
@@ -20,7 +20,7 @@ export async function handleRefresh(interaction: ButtonInteraction) {
 			});
 		} else if (correios.statusCode !== 200) {
 			return interaction.followUp({
-				content: `${Emojis.error} | Houve um erro ao buscar o código: \`${correios.statusCode}\` - \`${correios.message}\``,
+				content: `${Emojis.error} | Houve um erro ao buscar o código: \`${correios.statusCode}\` - \`Desconhecido\``,
 				ephemeral: true,
 			});
 		}
@@ -46,6 +46,6 @@ export async function handleRefresh(interaction: ButtonInteraction) {
 	}
 
 	return interaction.editReply({
-		embeds: formatCorreios({ ...(correios as RastreioCorreios<true>), name: codeData?.name }),
+		embeds: generateCorreiosMessage({ ...(correios as RastreioCorreios<true>), name: codeData?.name }),
 	});
 }

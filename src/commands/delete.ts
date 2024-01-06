@@ -8,7 +8,7 @@ import { deleteCode, deleteUser } from '../postgres/delete.js';
 import { getCode } from '../postgres/get.js';
 import { generateCustomId } from '../utils/genCustomId.js';
 import { typeSafeParseEmoji } from '../utils/parseEmoji.js';
-import { validateCode } from '../utils/validadeCode.js';
+import { validateCorreiosCode } from '../utils/validadeCode.js';
 
 export async function handleDelete(interaction: ChatInputCommandInteraction, args: ArgumentsOf<typeof DeleteCommand>) {
 	switch (Object.keys(args)[0]) {
@@ -104,7 +104,7 @@ async function handleUser(interaction: ChatInputCommandInteraction) {
 async function handleCode(interaction: ChatInputCommandInteraction, args: ArgumentsOf<typeof DeleteCommand>['codigo']) {
 	const { codigo } = args;
 
-	if (!validateCode(codigo)) {
+	if (!validateCorreiosCode(codigo)) {
 		return interaction.editReply({
 			content: [
 				`${Emojis.warning} | **Código inválido.**`,

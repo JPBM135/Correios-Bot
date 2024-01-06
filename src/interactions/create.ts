@@ -7,6 +7,8 @@ export const RegisterCommand = {
 		{
 			name: 'codigo',
 			description: 'O código de rastreio.',
+			max_length: 20,
+			min_length: 10,
 			type: ApplicationCommandOptionType.String,
 			required: true,
 		},
@@ -15,6 +17,7 @@ export const RegisterCommand = {
 			description: 'O nome do código de rastreio.',
 			type: ApplicationCommandOptionType.String,
 			required: false,
+			max_length: 100,
 			min_length: 3,
 		},
 		{

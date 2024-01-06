@@ -21,6 +21,7 @@ export async function createCode(
 	channel_id: string,
 	name: string | null = null,
 	restricted = false,
+	ended = false,
 ): Promise<RawCorreiosCode> {
 	const sql = container.resolve<Sql>(kSQL);
 
@@ -30,10 +31,11 @@ export async function createCode(
 		owner_id,
 		name,
 		restricted,
+		ended,
 	});
 
 	const [result] = await sql<[RawCorreiosCode]>`
-		insert into correios_codes (code, owner_id, channel_id, name, restricted) values (${code}, ${owner_id}, ${channel_id}, ${name}, ${restricted})
+		insert into correios_codes (code, owner_id, channel_id, name, restricted, ended) values (${code}, ${owner_id}, ${channel_id}, ${name}, ${restricted}, ${ended})
 		returning *
 	`;
 

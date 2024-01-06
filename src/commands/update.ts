@@ -5,14 +5,14 @@ import { Emojis } from '../constants.js';
 import type { EditCommand } from '../interactions/edit.js';
 import { getCode, type RawCorreiosCode } from '../postgres/get.js';
 import { updateCode } from '../postgres/update.js';
-import { validateCode } from '../utils/validadeCode.js';
+import { validateCorreiosCode } from '../utils/validadeCode.js';
 
 export async function handleUpdate(interaction: ChatInputCommandInteraction, args: ArgumentsOf<typeof EditCommand>) {
 	await interaction.deferReply({ ephemeral: true });
 
 	const { codigo } = args;
 
-	if (!validateCode(codigo)) {
+	if (!validateCorreiosCode(codigo)) {
 		return interaction.editReply({
 			content: [
 				`${Emojis.warning} | **Código inválido.**`,

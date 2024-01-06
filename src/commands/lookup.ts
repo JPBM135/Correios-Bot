@@ -7,9 +7,10 @@ import type { RastreioCorreios } from '../correios/fetch.js';
 import { fetchCorreios } from '../correios/fetch.js';
 import type { LookupCommand } from '../interactions/lookup.js';
 import { getCode } from '../postgres/get.js';
-import { formatCorreios } from '../utils/correioFormat.js';
 import { typeSafeParseEmoji } from '../utils/parseEmoji.js';
-import { validateCode } from '../utils/validadeCode.js';
+import { validateCorreiosCode } from '../utils/validadeCode.js';
+import { isCodeDelivered } from '../utils/isDelivered.js';
+import { generateCorreiosMessage } from '../utils/formatCorreios/generateMessage.js';
 
 export async function handleLookup(interaction: ChatInputCommandInteraction, args: ArgumentsOf<typeof LookupCommand>) {
 	const [code, hide] = [args.codigo, args.esconder ?? false];
@@ -18,7 +19,7 @@ export async function handleLookup(interaction: ChatInputCommandInteraction, arg
 		ephemeral: hide,
 	});
 
-	if (!validateCode(code)) {
+	if (!validateCorreiosCode(code)) {
 		return interaction.editReply({
 			content: [
 				`${Emojis.warning} | **Código inválido.**`,
@@ -42,20 +43,23 @@ export async function handleLookup(interaction: ChatInputCommandInteraction, arg
 
 	if (!correios.success) {
 		return interaction.editReply(
-			`${Emojis.error} | Houve um erro ao buscar o código: \`${correios.statusCode}\` - \`${correios.message}\``,
+			`${Emojis.error} | Houve um erro ao buscar o código: \`${correios.statusCode}\` - \`Desconhecido\``,
 		);
 	}
 
+	const isDelivered = isCodeDelivered(correios);
+
 	const refreshButton: APIButtonComponentWithCustomId = {
-		label: 'Atualizar',
+		label: isCodeDelivered(correios) ? 'Entregue' : 'Atualizar',
 		type: ComponentType.Button,
 		custom_id: `REFRESH::${code}`,
 		style: ButtonStyle.Secondary,
-		emoji: typeSafeParseEmoji(Emojis.refresh),
+		disabled: isDelivered,
+		emoji: typeSafeParseEmoji(isDelivered ? Emojis.success : Emojis.refresh),
 	};
 
 	return interaction.editReply({
-		embeds: formatCorreios({ ...(correios as RastreioCorreios<true>), name: codeConfig?.name }),
+		embeds: generateCorreiosMessage({ ...(correios as RastreioCorreios<true>), name: codeConfig?.name }),
 		components: [createMessageActionRow([refreshButton])],
 	});
 }

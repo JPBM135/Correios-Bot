@@ -14,6 +14,7 @@
 		"start:dev": "yarn build && yarn dev",
 		"dev": "env-cmd node --enable-source-maps dist/index.js",
 		"deploy:commands": "env-cmd node --enable-source-maps dist/deploy.js",
+		"deploy:global": "env-cmd node --enable-source-maps dist/deploy.js --global",
 		"server:update": "git pull && yarn --immutable && yarn build && yarn deploy:commands && pm2 restart",
 		"update": "yarn upgrade-interactive"
 	},
@@ -23,28 +24,28 @@
 	"license": "AGPL-3.0",
 	"private": true,
 	"dependencies": {
-		"@discordjs/rest": "^1.3.0",
-		"@yuudachi/framework": "^0.1.3",
-		"discord-api-types": "^0.37.16",
-		"discord.js": "^14.6.0",
-		"postgres": "^3.3.1",
+		"@discordjs/rest": "^2.2.0",
+		"@yuudachi/framework": "^0.1.4",
+		"discord-api-types": "^0.37.67",
+		"discord.js": "^14.14.1",
+		"postgres": "^3.4.3",
 		"postgresql": "^0.0.1",
-		"reflect-metadata": "^0.1.13",
-		"tsyringe": "^4.7.0",
-		"undici": "^5.12.0",
-		"yarn": "^1.22.19"
+		"reflect-metadata": "^0.1.14",
+		"tsyringe": "^4.8.0",
+		"undici": "^5.28.2",
+		"yarn": "^1.22.21"
 	},
 	"devDependencies": {
-		"@swc/cli": "^0.1.57",
-		"@swc/core": "^1.3.11",
-		"@types/node": "^18.11.9",
-		"cpy-cli": "^4.2.0",
-		"del-cli": "^5.0.0",
+		"@swc/cli": "^0.1.63",
+		"@swc/core": "^1.3.102",
+		"@types/node": "^20.10.6",
+		"cpy-cli": "^5.0.0",
+		"del-cli": "^5.1.0",
 		"env-cmd": "^10.1.0",
-		"eslint": "^8.26.0",
-		"eslint-config-neon": "^0.1.39",
-		"prettier": "^2.7.1",
-		"typescript": "^4.8.4"
+		"eslint": "^8.56.0",
+		"eslint-config-neon": "^0.1.57",
+		"prettier": "^2.8.8",
+		"typescript": "^5.1.0"
 	},
 	"engines": {
 		"node": ">=17.9.0"

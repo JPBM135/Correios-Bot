@@ -48,3 +48,44 @@ export async function getCode(code: string): Promise<RawCorreiosCode | null> {
 
 	return result;
 }
+
+export async function getCodesByUser(
+	id: string,
+	{
+		ended = false,
+		limit = 10,
+		offset = 0,
+	}: {
+		ended: boolean | null;
+		limit?: number;
+		offset?: number;
+	},
+) {
+	const sql = container.resolve<Sql>(kSQL);
+
+	const results = await sql.unsafe<[RawCorreiosCode]>(
+		/* sql */ `
+		select * from correios_codes
+			where owner_id = $1
+			${ended === null ? '' : 'and ended = $4'}
+			order by last_update desc
+			limit $2
+			offset $3
+	`,
+		ended === null ? [id, limit, offset] : [id, limit, offset, ended],
+	);
+
+	const [count] = await sql.unsafe<[{ count: number }]>(
+		`
+		select count(*) from correios_codes
+			where owner_id = $1
+			${ended === null ? '' : 'and ended = $2'}
+	`,
+		ended === null ? [id] : [id, ended],
+	);
+
+	return {
+		count: Number(count.count),
+		results,
+	};
+}

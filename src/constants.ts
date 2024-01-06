@@ -9,7 +9,9 @@ export const Emojis = {
 	fallback: '<:icons_createchannel:1037544393592279100>',
 };
 
-export const BaseUrl = 'https://api.melhorrastreio.com.br/api/v1/trackings';
+export const BaseUrl = 'https://api.linketrack.com/track/json';
 
 export const kCheckInterval = Symbol('checkInterval');
 export const checkInterval = 1_000 * 60 * 10;
+
+export const DELIVERED_STATUS = 'Objeto entregue ao destinatário';

@@ -14,6 +14,8 @@ export const EditCommand = {
 			name: 'novo_nome',
 			description: 'O novo nome do código de rastreio.',
 			type: ApplicationCommandOptionType.String,
+			min_length: 3,
+			max_length: 100,
 		},
 		{
 			name: 'restringir',

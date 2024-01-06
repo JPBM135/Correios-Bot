@@ -1,13 +1,12 @@
 import type { ArgumentsOf } from '@yuudachi/framework/types';
 import type { ChatInputCommandInteraction } from 'discord.js';
 import { Emojis } from '../constants.js';
-import type { RastreioCorreios } from '../correios/fetch.js';
 import { fetchCorreios } from '../correios/fetch.js';
 import type { RegisterCommand } from '../interactions/create.js';
 import { createCode } from '../postgres/create.js';
 import { getCode, getUser } from '../postgres/get.js';
-import { formatCorreios } from '../utils/correioFormat.js';
-import { validateCode } from '../utils/validadeCode.js';
+import { isCodeDelivered } from '../utils/isDelivered.js';
+import { validateCorreiosCode } from '../utils/validadeCode.js';
 
 export async function handleCreate(
 	interaction: ChatInputCommandInteraction,
@@ -23,7 +22,7 @@ export async function handleCreate(
 	const name = args.nome ?? null;
 	const restricted = args.restrito ?? userConfig.always_restrict ?? false;
 
-	if (!validateCode(codigo)) {
+	if (!validateCorreiosCode(codigo)) {
 		return interaction.editReply({
 			content: [
 				`${Emojis.warning} | **Código inválido.**`,
@@ -44,32 +43,32 @@ export async function handleCreate(
 
 	const correios = await fetchCorreios(codigo);
 
-	if (correios.statusCode === 404) {
+	if (correios.statusCode === 404 || !correios.eventos?.length) {
 		return interaction.editReply(`${Emojis.error} | Código não encontrado, tente novamente mais tarde.`);
 	}
 
 	if (!correios.success) {
 		return interaction.editReply(
-			`${Emojis.error} | Houve um erro ao buscar o código: \`${correios.statusCode}\` - \`${correios.message}\``,
+			`${Emojis.error} | Houve um erro ao buscar o código: \`${correios.statusCode}\` - \`Desconhecido\``,
 		);
 	}
 
-	if ((correios as RastreioCorreios<true>).data.status === 'delivered') {
-		return interaction.editReply({
-			content: `${Emojis.success} | O código já foi entregue.`,
-			embeds: formatCorreios(correios as RastreioCorreios<true>),
-		});
-	}
+	const isEnded = isCodeDelivered(correios);
 
-	const created = await createCode(codigo, interaction.user.id, interaction.channelId, name, restricted);
+	const created = await createCode(codigo, interaction.user.id, interaction.channelId, name, restricted, isEnded);
 
 	return interaction.editReply({
-		content: [
-			`${Emojis.success} | Código cadastrado com sucesso.`,
-			'',
-			`> **Código:** \`${created.code}\``,
-			`> **Nome:** \`${created.name ?? 'Nenhum'}\``,
-			`> **Restrito:** \`${created.restricted ? 'Sim' : 'Não'}\``,
-		].join('\n'),
+		embeds: [
+			{
+				description: [
+					`${Emojis.success} | Código cadastrado com sucesso.`,
+					`${Emojis.curvaReta} Código: \`${created.code}\``,
+					`${Emojis.curvaReta} Nome: \`${created.name ?? 'Nenhum'}\``,
+					`${Emojis.curvaReta} Restrito: \`${created.restricted ? 'Sim' : 'Não'}\``,
+					`${Emojis.curvaReta} Canal vinculado: \`${created.channel_id ? `<#${created.channel_id}>` : 'Nenhum'}\``,
+					`${Emojis.curva} Entregue: \`${isEnded ? 'Sim' : 'Não'}\``,
+				].join('\n'),
+			},
+		],
 	});
 }

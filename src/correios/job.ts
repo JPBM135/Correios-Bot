@@ -1,11 +1,13 @@
 import { container, kSQL, logger } from '@yuudachi/framework';
 import { Client } from 'discord.js';
 import type { Sql } from 'postgres';
+import { DELIVERED_STATUS } from '../constants.js';
 import { getUser, type RawCorreiosCode } from '../postgres/get.js';
 import { updateCode } from '../postgres/update.js';
-import { formatCorreios } from '../utils/correioFormat.js';
 import type { RastreioCorreios } from './fetch.js';
 import { fetchCorreios } from './fetch.js';
+import { awaitOneSecond } from '../utils/awaitOneSecond.js';
+import { generateCorreiosMessage } from '../utils/formatCorreios/generateMessage.js';
 
 export async function checkJob() {
 	const sql = container.resolve<Sql<any>>(kSQL);
@@ -21,23 +23,23 @@ export async function checkJob() {
 	for (const code of openCodes) {
 		try {
 			const data = (await fetchCorreios(code.code)) as RastreioCorreios<true>;
+			const rateLimitTimer = awaitOneSecond();
 
 			if (!data.success) {
 				logger.error({
 					msg: 'Error while fetching code',
 					code: code.code,
 					statusCode: data.statusCode,
-					message: data.message,
 				});
 
 				continue;
 			}
 
-			if (!data || data.data.events.length === code.events_size) {
-				if (data.data.status === 'delivered') {
-					logger.info(`Code ${code.code} was delivered, ending`);
-					await updateCode(code.code, { ended: true });
-				}
+			const someEnded = data.eventos?.some((evento) => evento.status === DELIVERED_STATUS);
+
+			if (someEnded && (!data || data.eventos?.length === code.events_size)) {
+				logger.info(`Code ${code.code} was delivered, ending`);
+				await updateCode(code.code, { ended: true });
 
 				continue;
 			}
@@ -45,7 +47,7 @@ export async function checkJob() {
 			logger.info({
 				msg: 'Updating code',
 				code: code.code,
-				events_size: data.data.events.length,
+				events_size: data.eventos?.length ?? 0,
 			});
 
 			const owner = await client.users.fetch(code.owner_id);
@@ -56,7 +58,7 @@ export async function checkJob() {
 
 			const ownerConfig = await getUser(code.owner_id);
 
-			const embeds = formatCorreios(data, true);
+			const embeds = generateCorreiosMessage(data, true);
 
 			if (ownerConfig.allow_dm) await owner.send({ embeds }).catch(() => null);
 
@@ -69,9 +71,11 @@ export async function checkJob() {
 			}
 
 			await updateCode(code.code, {
-				events_size: data.data.events.length,
-				ended: data.data.status === 'delivered',
+				events_size: data.eventos?.length ?? code.events_size ?? 0,
+				ended: someEnded ?? code.ended,
 			});
+
+			await rateLimitTimer();
 		} catch (error) {
 			logger.error(error);
 		}
