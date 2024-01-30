@@ -25,7 +25,7 @@ export async function checkJob() {
 			const data = (await fetchCorreios(code.code)) as RastreioCorreios<true>;
 			const rateLimitTimer = awaitOneSecond();
 
-			if (!data.success) {
+			if (!data?.success) {
 				logger.error({
 					msg: 'Error while fetching code',
 					code: code.code,
@@ -42,6 +42,11 @@ export async function checkJob() {
 				await updateCode(code.code, { ended: true });
 
 				continue;
+			}
+
+			if (data.eventos?.length === code.events_size) {
+				logger.info(`Code ${code.code} has not changed since last time!`)
+				continue
 			}
 
 			logger.info({
@@ -69,6 +74,8 @@ export async function checkJob() {
 					await channel.send({ embeds }).catch(() => null);
 				}
 			}
+
+			console.log(data, code)
 
 			await updateCode(code.code, {
 				events_size: data.eventos?.length ?? code.events_size ?? 0,
