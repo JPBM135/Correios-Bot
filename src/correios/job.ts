@@ -44,7 +44,7 @@ export async function checkJob() {
 				continue;
 			}
 
-			if (data.eventos?.length === code.events_size) {
+			if ((Number(data.eventos?.length) ?? 0) <= code.events_size) {
 				logger.info(`Code ${code.code} has not changed since last time!`)
 				continue
 			}
